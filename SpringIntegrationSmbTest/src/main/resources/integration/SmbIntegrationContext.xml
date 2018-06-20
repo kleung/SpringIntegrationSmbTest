@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-smb="http://www.springframework.org/schema/integration/smb"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+		http://www.springframework.org/schema/integration/smb http://www.springframework.org/schema/integration/smb/spring-integration-smb.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+	<bean id="smbSession" class="org.springframework.integration.smb.session.SmbSessionFactory">
+		<property name="host" value="KenDesktop"/>
+		<property name="username" value="Ken"/>
+		<property name="password" value="arrowhead"/>
+		<property name="shareAndDir" value="share_folder/"/>
+	</bean>
+	
+	<task:executor id="taskExecutor"
+				   pool-size="20" />
+	
+	<int-smb:inbound-channel-adapter local-directory="target/smb-transfer-work"
+									 session-factory="smbSession" 
+									 remote-directory="."
+									 auto-create-local-directory="true" 
+									 delete-remote-files="false"
+									 channel="inboundChannel">
+		<int:poller fixed-rate="120000" max-messages-per-poll="1" task-executor="taskExecutor" />
+	</int-smb:inbound-channel-adapter>
+	
+	<int:channel id="inboundChannel" />
+	
+	<bean id="SmbFileHandlingService" class="com.test.SpringIntegrationSmbTest.service.SmbFileHandlingService" />
+	
+	<int:service-activator input-channel="inboundChannel"
+						   ref="SmbFileHandlingService"
+						   method="handleMessage" />
+
+</beans>
