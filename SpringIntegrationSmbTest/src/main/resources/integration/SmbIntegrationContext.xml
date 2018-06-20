@@ -43,8 +43,6 @@
 						   
 	<int:channel id="outboundChannel" />
 	
-	
-	
 	<int-smb:outbound-channel-adapter id="outboundSmbAdapter"
 									  channel="outboundChannel"
 									  session-factory="smbSession"
