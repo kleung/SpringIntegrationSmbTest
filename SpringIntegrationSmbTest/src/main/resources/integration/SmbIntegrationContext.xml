@@ -38,6 +38,21 @@
 	
 	<int:service-activator input-channel="inboundChannel"
 						   ref="SmbFileHandlingService"
-						   method="handleMessage" />
+						   method="handleMessage"
+						   output-channel="outboundChannel" />
+						   
+	<int:channel id="outboundChannel" />
+	
+	
+	
+	<int-smb:outbound-channel-adapter id="outboundSmbAdapter"
+									  channel="outboundChannel"
+									  session-factory="smbSession"
+									  remote-directory="./output"
+									  remote-filename-generator-expression="payload.name">
+		<int-smb:request-handler-advice-chain>
+			<bean id="tempFileCleanupAdvice" class="com.test.SpringIntegrationSmbTest.completion.advice.TempFileCleanupAdvice" />
+		</int-smb:request-handler-advice-chain>
+	</int-smb:outbound-channel-adapter>
 
 </beans>

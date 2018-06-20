@@ -13,12 +13,15 @@ public class SmbFileHandlingService {
 		super();
 	}
 	
-	public void handleMessage(Message<File> message) {
+	public File handleMessage(Message<File> message) {
 		Object payload = message.getPayload();
+		File payloadFile = null;
 		
 		if((payload != null) && (payload instanceof File)) {
 			File localTempFile = (File) payload;
 			byte[] fileBytes = null;
+			
+			payloadFile = localTempFile;
 			
 			try {
 				fileBytes = FileCopyUtils.copyToByteArray(localTempFile);
@@ -29,13 +32,14 @@ public class SmbFileHandlingService {
 			} catch (IOException ioe) {
 				throw new RuntimeException(ioe.getMessage(), ioe);
 			} finally {
-				try {
+				/*try {
 					localTempFile.delete();
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}*/
 			}
 		}
+		return payloadFile;
 	}
 
 }
